@@ -1,0 +1,2 @@
+# Classification-des-demandes-au-service-client-d-une-compagnie-d-assurance
+Une entreprise d'assurance possède un service client qui reçoit un grand volume de demandes quotidiennes de la part de ses assurés. Ces demandes peuvent varier considérablement, allant des questions sur les contrats d'assurance vie, des réclamations liées aux sinistres, des demandes de modification, aux plaintes concernant les services reçus.
