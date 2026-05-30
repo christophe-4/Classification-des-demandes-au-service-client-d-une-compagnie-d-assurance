@@ -1,3 +1,6 @@
+# Copyright 2026 Christophe TROËL
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Boucle d'entrainement pour les modeles de classification de texte.
 
