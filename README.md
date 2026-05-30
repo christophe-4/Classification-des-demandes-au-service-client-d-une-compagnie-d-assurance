@@ -236,5 +236,3 @@ Consultant Supply Chain & Operations | IA appliquée pour les PME
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Christophe_TROËL-0077B5?logo=linkedin&logoColor=white)](https://linkedin.com/in/christophe-troel)
 
 ---
-
-*Projet réalisé dans le cadre de la formation Deep Learning — [Blent.ai](https://blent.ai)*
