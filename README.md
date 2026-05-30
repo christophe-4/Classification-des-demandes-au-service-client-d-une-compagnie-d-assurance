@@ -6,6 +6,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Weighted F1](https://img.shields.io/badge/Weighted_F1-83.12%25-brightgreen)](reports/figures/confusion_matrix_textcnn.png)
 [![Tests](https://img.shields.io/badge/tests-12_passed-brightgreen)](tests/)
+[![HF Space](https://img.shields.io/badge/🤗_HuggingFace-Space_Demo-yellow)](https://huggingface.co/spaces/FrenchEdtech/claims-classifier-demo)
 
 > **Template PME** : modèle de Deep Learning NLP entraîné *from scratch* sur 300 000 réclamations
 > clients réelles (CFPB). Déployable pour automatiser le routage de réclamations en entreprise.
@@ -23,6 +24,17 @@
 **Objectif : Weighted F1 ≥ 75 % → Atteint à 83.12 %** 🎯
 
 Entraîné sur GPU NVIDIA RTX 3090 — dataset CFPB 299 856 observations, 12 classes.
+
+---
+
+## 🚀 Démo en ligne
+
+Testez le modèle directement dans votre navigateur — aucune installation requise :
+
+👉 **[claims-classifier-demo sur Hugging Face Spaces](https://huggingface.co/spaces/FrenchEdtech/claims-classifier-demo)**
+
+Collez n'importe quelle réclamation financière en anglais et obtenez
+la classification avec les probabilités en temps réel.
 
 ---
 
@@ -220,6 +232,7 @@ Prédictions (top 3) :
 - [x] 12 tests unitaires
 
 **Phase 2 — Déploiement ⏳**
+- [x] Démo Hugging Face Space (Gradio)
 - [ ] API REST FastAPI (`POST /predict`)
 - [ ] Conteneurisation Docker
 - [ ] Monitoring data drift (distribution des classes en production)
