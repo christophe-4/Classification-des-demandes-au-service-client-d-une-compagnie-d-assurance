@@ -1,0 +1,61 @@
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[oc]
+*.pyo
+build/
+dist/
+wheels/
+*.egg-info/
+.eggs/
+
+# ── Environnement virtuel ──────────────────────────────
+.venv/
+venv/
+env/
+
+# ── uv ────────────────────────────────────────────────
+# uv.lock est intentionnellement VERSIONNÉ (ne pas ignorer)
+# .python-version est intentionnellement VERSIONNÉ
+
+# ── Données (souvent trop lourdes pour Git) ────────────
+data/raw/
+data/interim/
+data/processed/
+
+# ── Modeles entraines (lourds) — UNIQUEMENT le dossier racine ──
+# Le slash devant garantit qu'on n'ignore PAS src/claims_classifier/models/
+/models/
+!/models/.gitkeep
+
+# ── Logs TensorBoard ──────────────────────────────────
+runs/
+!runs/.gitkeep
+
+# ── Notebooks (outputs) ───────────────────────────────
+notebooks/.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Reports / figures générées ────────────────────────
+# Les PNG sont légers et nécessaires pour le README — intentionnellement VERSIONNÉS
+# reports/figures/ -- NE PAS ignorer (figures versionnées pour le portfolio GitHub)
+reports/figures/.gitkeep
+
+# ── Variables d'environnement ─────────────────────────
+.env
+.env.local
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ───────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+
+# ── Fichiers internes / développement ─────────────────
+CONTEXT.md
+reports/figures/*_test.png
+reports/figures/*_test.txt
+reports/report_test.txt

@@ -1,0 +1,50 @@
+RAPPORT D'EVALUATION — MLP
+============================================================
+
+Weighted F1  : 0.8116 (81.16%)
+Macro F1     : 0.5515 (55.15%)
+Accuracy     : 0.7974 (79.74%)
+Objectif 75% : ATTEINT
+
+F1 PAR CLASSE
+----------------------------------------
+  other                          0.0000
+  consumer_loan                  0.1942
+  bank_account_or_service        0.3216
+  payday_loan                    0.3785
+  vehicle_loan                   0.4446
+  checking_or_savings            0.6751
+  money_transfer                 0.6814
+  credit_card                    0.7150
+  debt_collection                0.7182
+  student_loan                   0.7334
+  mortgage                       0.8685
+  credit_reporting               0.8880
+
+CLASSIFICATION REPORT (scikit-learn)
+----------------------------------------
+                         precision    recall  f1-score   support
+
+bank_account_or_service       0.23      0.55      0.32       324
+    checking_or_savings       0.70      0.66      0.68      2239
+          consumer_loan       0.15      0.29      0.19       209
+            credit_card       0.66      0.77      0.71      3622
+       credit_reporting       0.96      0.82      0.89     26853
+        debt_collection       0.68      0.76      0.72      5915
+         money_transfer       0.61      0.77      0.68       960
+               mortgage       0.83      0.91      0.87      2622
+                  other       0.00      0.00      0.00        28
+            payday_loan       0.28      0.57      0.38       510
+           student_loan       0.63      0.88      0.73       986
+           vehicle_loan       0.33      0.68      0.44       711
+
+               accuracy                           0.80     44979
+              macro avg       0.51      0.64      0.55     44979
+           weighted avg       0.84      0.80      0.81     44979
+
+INFOS COMPLEMENTAIRES
+----------------------------------------
+Modele          : MLP
+Parametres      : 3,849,292
+Epochs effectuees : 7
+Device          : cuda

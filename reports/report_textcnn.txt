@@ -1,0 +1,47 @@
+RAPPORT D'EVALUATION — TEXTCNN
+============================================================
+
+Weighted F1  : 0.8312 (83.12%)
+Macro F1     : 0.5935 (59.35%)
+Accuracy     : 0.8230 (82.30%)
+Objectif 75% : ATTEINT
+
+F1 PAR CLASSE
+----------------------------------------
+  other                          0.0000
+  consumer_loan                  0.2750
+  bank_account_or_service        0.3795
+  payday_loan                    0.4474
+  vehicle_loan                   0.5390
+  money_transfer                 0.6895
+  checking_or_savings            0.7201
+  debt_collection                0.7283
+  credit_card                    0.7453
+  student_loan                   0.8056
+  mortgage                       0.8914
+  credit_reporting               0.9006
+
+CLASSIFICATION REPORT (scikit-learn)
+----------------------------------------
+                         precision    recall  f1-score   support
+
+bank_account_or_service       0.35      0.41      0.38       324
+    checking_or_savings       0.72      0.72      0.72      2239
+          consumer_loan       0.24      0.32      0.28       209
+            credit_card       0.70      0.80      0.75      3622
+       credit_reporting       0.97      0.84      0.90     26853
+        debt_collection       0.67      0.80      0.73      5915
+         money_transfer       0.60      0.81      0.69       960
+               mortgage       0.85      0.94      0.89      2622
+                  other       0.00      0.00      0.00        28
+            payday_loan       0.41      0.50      0.45       510
+           student_loan       0.75      0.87      0.81       986
+           vehicle_loan       0.41      0.79      0.54       711
+
+               accuracy                           0.82     44979
+              macro avg       0.56      0.65      0.59     44979
+           weighted avg       0.85      0.82      0.83     44979
+
+INFOS COMPLEMENTAIRES
+----------------------------------------
+Checkpoint : best_val_f1=0.8276
