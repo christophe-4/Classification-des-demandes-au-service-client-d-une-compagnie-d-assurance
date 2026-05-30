@@ -1,4 +1,3 @@
+torch
 gradio>=5.0.0
-pydantic-settings>=2.14.1
 huggingface_hub>=0.26.0
-git+https://github.com/christophe-4/Classification-des-demandes-au-service-client-d-une-compagnie-d-assurance.git
