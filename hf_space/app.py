@@ -205,9 +205,8 @@ demo = gr.Interface(
         "(https://github.com/christophe-4/Classification-des-demandes-au-service-client-d-une-compagnie-d-assurance)"
     ),
     examples=EXAMPLES,
-    cache_examples=False,
     flagging_mode="never",
 )
 
 if __name__ == "__main__":
-    demo.launch(theme=gr.themes.Soft())
+    demo.launch()
