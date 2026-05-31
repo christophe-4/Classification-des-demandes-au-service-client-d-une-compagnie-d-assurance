@@ -1,0 +1,19 @@
+# Dependances RUNTIME pour l'image Docker de l'API (CPU only).
+#
+# Sous-ensemble de pyproject.toml limite a ce dont l'API a besoin pour
+# l'inference. Les dependances d'entrainement / visualisation
+# (matplotlib, seaborn, tensorboard, jupyter, typer, tqdm, openpyxl)
+# sont volontairement exclues pour garder l'image legere.
+#
+# torch n'est PAS liste ici : il est installe separement dans le Dockerfile
+# depuis l'index CPU (https://download.pytorch.org/whl/cpu).
+#
+# Source de verite des versions : pyproject.toml
+
+fastapi>=0.136.3
+uvicorn[standard]>=0.48.0
+python-multipart>=0.0.29
+pydantic-settings>=2.14.1
+numpy>=2.4.4
+pandas>=3.0.3
+scikit-learn>=1.8.0

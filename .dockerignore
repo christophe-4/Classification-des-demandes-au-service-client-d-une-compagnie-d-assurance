@@ -1,0 +1,44 @@
+# ── Environnement virtuel / caches Python ─────────────
+.venv/
+venv/
+env/
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.ruff_cache/
+
+# ── Git / CI ──────────────────────────────────────────
+.git/
+.github/
+.gitignore
+
+# ── Donnees lourdes (NON necessaires dans l'image) ────
+data/raw/
+data/interim/
+
+# ── Artefacts de dev / sorties ────────────────────────
+runs/
+reports/
+notebooks/
+hf_space/
+
+# ── Docs / fichiers internes ──────────────────────────
+CONTEXT.md
+README.md
+LICENSE
+
+# ── Variables d'environnement ─────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── OS / IDE ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# ── Docker lui-meme ───────────────────────────────────
+Dockerfile
+.dockerignore
