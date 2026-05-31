@@ -87,9 +87,7 @@ def load_for_inference(
 
     # ── Chargement du checkpoint ─────────────────────────────────────────────
     logger.info(f"Chargement du checkpoint : {checkpoint_path}")
-    checkpoint = torch.load(
-        checkpoint_path, map_location=device, weights_only=True
-    )
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
 
     arch_name: str = checkpoint["model_name"]
     num_classes: int = checkpoint["num_classes"]
@@ -112,9 +110,7 @@ def load_for_inference(
     elif arch_name == "textcnn":
         model = TextCNN(vocab_size=vocab_size, num_classes=num_classes)
     else:
-        raise ValueError(
-            f"Architecture inconnue dans le checkpoint : '{arch_name}'"
-        )
+        raise ValueError(f"Architecture inconnue dans le checkpoint : '{arch_name}'")
 
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)

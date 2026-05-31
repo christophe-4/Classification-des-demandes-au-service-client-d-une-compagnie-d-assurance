@@ -62,7 +62,9 @@ class Vocabulary:
             Instance de Vocabulary prete a l'emploi.
         """
         vocab_size = vocab_size if vocab_size is not None else config.preprocessing.vocab_size
-        min_frequency = min_frequency if min_frequency is not None else config.preprocessing.min_word_frequency
+        min_frequency = (
+            min_frequency if min_frequency is not None else config.preprocessing.min_word_frequency
+        )
 
         logger.info("Construction du vocabulaire...")
 
@@ -84,8 +86,7 @@ class Vocabulary:
         vocab._build_from_words([w for w, _ in most_common])
 
         logger.info(
-            f"Vocabulaire construit : {vocab.size:,} mots "
-            f"(+ 2 tokens speciaux <pad>, <unk>)"
+            f"Vocabulaire construit : {vocab.size:,} mots (+ 2 tokens speciaux <pad>, <unk>)"
         )
 
         return vocab
@@ -136,8 +137,7 @@ class Vocabulary:
             Liste de mots.
         """
         pad_id = config.preprocessing.pad_token_id
-        return [self.idx2word.get(i, config.preprocessing.unk_token)
-                for i in ids if i != pad_id]
+        return [self.idx2word.get(i, config.preprocessing.unk_token) for i in ids if i != pad_id]
 
     # -------------------------------------------------------------------------
     # Persistance
@@ -204,9 +204,9 @@ class Vocabulary:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
 
-    from claims_classifier.data.loader import load_raw
     from claims_classifier.data.cleaning import run_cleaning
     from claims_classifier.data.dataset import make_splits
+    from claims_classifier.data.loader import load_raw
 
     # Charger et nettoyer
     df = load_raw()

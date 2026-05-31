@@ -21,12 +21,12 @@ from claims_classifier.data.dataset import LabelEncoder, make_splits
 from claims_classifier.data.vocab import Vocabulary
 from claims_classifier.models.mlp import MLP
 from claims_classifier.models.textcnn import TextCNN
-from claims_classifier.utils import set_seed, get_device
-
+from claims_classifier.utils import get_device, set_seed
 
 # =============================================================================
 # CONFIG
 # =============================================================================
+
 
 def test_config_chargee():
     """La configuration globale est instanciee et coherente."""
@@ -39,6 +39,7 @@ def test_config_chargee():
 # =============================================================================
 # UTILS
 # =============================================================================
+
 
 def test_set_seed_reproductible():
     """set_seed produit des tirages identiques."""
@@ -58,6 +59,7 @@ def test_get_device_retourne_torch_device():
 # CLEANING
 # =============================================================================
 
+
 def test_clean_text_minuscules_et_tokens():
     """Le nettoyage applique minuscules, dates et montants."""
     raw = "I paid $1,200.50 on XX/XX/2024 with my XXXX card.\nThanks!"
@@ -71,15 +73,17 @@ def test_clean_text_minuscules_et_tokens():
 
 def test_map_labels_fusion_21_vers_12():
     """Les libelles bruts sont bien fusionnes."""
-    df = pd.DataFrame({
-        "label": [
-            "Credit reporting",
-            "Credit reporting, credit repair services, or other personal consumer reports",
-            "Credit card",
-            "Mortgage",
-        ],
-        "text": ["a", "b", "c", "d"],
-    })
+    df = pd.DataFrame(
+        {
+            "label": [
+                "Credit reporting",
+                "Credit reporting, credit repair services, or other personal consumer reports",
+                "Credit card",
+                "Mortgage",
+            ],
+            "text": ["a", "b", "c", "d"],
+        }
+    )
     out = map_labels(df)
     assert set(out["label"]) == {"credit_reporting", "credit_card", "mortgage"}
 
@@ -88,13 +92,16 @@ def test_map_labels_fusion_21_vers_12():
 # VOCAB
 # =============================================================================
 
+
 def test_vocab_encode_decode_aller_retour():
     """Encode puis decode retourne les memes mots connus."""
-    texts = pd.Series([
-        "credit report violation federal law",
-        "credit report account",
-        "federal law account",
-    ])
+    texts = pd.Series(
+        [
+            "credit report violation federal law",
+            "credit report account",
+            "federal law account",
+        ]
+    )
     vocab = Vocabulary.build(texts, vocab_size=100, min_frequency=1)
     ids = vocab.encode("credit report account")
     decoded = vocab.decode(ids)
@@ -113,13 +120,16 @@ def test_vocab_unknown_to_unk():
 # SPLITS
 # =============================================================================
 
+
 def test_make_splits_proportions():
     """Les proportions train/val/test correspondent a la config."""
-    df = pd.DataFrame({
-        "text": [f"text {i}" for i in range(1000)],
-        # 4 classes pour permettre la stratification
-        "label": (["a"] * 250 + ["b"] * 250 + ["c"] * 250 + ["d"] * 250),
-    })
+    df = pd.DataFrame(
+        {
+            "text": [f"text {i}" for i in range(1000)],
+            # 4 classes pour permettre la stratification
+            "label": (["a"] * 250 + ["b"] * 250 + ["c"] * 250 + ["d"] * 250),
+        }
+    )
     train, val, test = make_splits(df)
     n = len(df)
     assert abs(len(train) / n - config.split.train_ratio) < 0.02
@@ -135,6 +145,7 @@ def test_make_splits_proportions():
 # LABEL ENCODER
 # =============================================================================
 
+
 def test_label_encoder_ordre_alphabetique():
     """L'encodeur trie les classes par ordre alphabetique (reproductibilite)."""
     labels = pd.Series(["mortgage", "credit_card", "debt_collection"])
@@ -147,6 +158,7 @@ def test_label_encoder_ordre_alphabetique():
 # =============================================================================
 # MODELES
 # =============================================================================
+
 
 def test_mlp_forward_shape():
     """MLP retourne des logits [batch, num_classes]."""

@@ -6,7 +6,7 @@ Boucle d'entrainement pour les modeles de classification de texte.
 
 Implements :
   - Passe forward + backward (retro-propagation, cours MLP)
-  - Mise a jour des poids avec Adam 
+  - Mise a jour des poids avec Adam
   - Early stopping sur le Weighted F1 (validation)
   - Checkpointing du meilleur modele
   - Suivi TensorBoard (cours perceptron)
@@ -15,11 +15,12 @@ Implements :
 
 import logging
 import time
+
 import torch
 import torch.nn as nn
+from sklearn.metrics import f1_score
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from sklearn.metrics import f1_score
 
 from claims_classifier.config import config
 from claims_classifier.utils import get_device
@@ -111,9 +112,7 @@ class Trainer:
         )
 
         # Chemins de sauvegarde
-        self.checkpoint_path = (
-            config.artifacts.models_dir / f"{model_name}_best.pt"
-        )
+        self.checkpoint_path = config.artifacts.models_dir / f"{model_name}_best.pt"
         config.artifacts.models_dir.mkdir(parents=True, exist_ok=True)
 
         # TensorBoard (cours perceptron)
@@ -146,17 +145,17 @@ class Trainer:
         Returns:
             Historique des metriques {metric_name: [valeurs par epoque]}.
         """
-        early_stopping = EarlyStopping(
-            patience=config.training.early_stopping_patience
-        )
+        early_stopping = EarlyStopping(patience=config.training.early_stopping_patience)
 
         history: dict[str, list[float]] = {
-            "train_loss": [], "val_loss": [],
-            "train_f1": [], "val_f1": [],
+            "train_loss": [],
+            "val_loss": [],
+            "train_f1": [],
+            "val_f1": [],
         }
 
         logger.info(
-            f"\n{'='*60}\n"
+            f"\n{'=' * 60}\n"
             f"Entrainement : {self.model_name.upper()}\n"
             f"  Epoques max  : {config.training.num_epochs}\n"
             f"  Batch size   : {config.training.batch_size}\n"
@@ -164,7 +163,7 @@ class Trainer:
             f"  Weight decay : {config.training.weight_decay}\n"
             f"  Patience     : {config.training.early_stopping_patience}\n"
             f"  Dispositif   : {self.device}\n"
-            f"{'='*60}"
+            f"{'=' * 60}"
         )
 
         for epoch in range(1, config.training.num_epochs + 1):
@@ -187,12 +186,8 @@ class Trainer:
             )
 
             # TensorBoard (cours)
-            self.writer.add_scalars(
-                "Loss", {"train": train_loss, "val": val_loss}, epoch
-            )
-            self.writer.add_scalars(
-                "Weighted_F1", {"train": train_f1, "val": val_f1}, epoch
-            )
+            self.writer.add_scalars("Loss", {"train": train_loss, "val": val_loss}, epoch)
+            self.writer.add_scalars("Weighted_F1", {"train": train_f1, "val": val_f1}, epoch)
 
             # Historique
             history["train_loss"].append(train_loss)
@@ -221,9 +216,7 @@ class Trainer:
     # Passes individuelles
     # -------------------------------------------------------------------------
 
-    def _train_epoch(
-        self, loader: DataLoader
-    ) -> tuple[float, float]:
+    def _train_epoch(self, loader: DataLoader) -> tuple[float, float]:
         """
         Une epoque d'entrainement.
 
@@ -250,17 +243,14 @@ class Trainer:
             self.optimizer.zero_grad()
 
             # Passe forward
-            logits = self.model(input_ids)          # [batch, num_classes]
+            logits = self.model(input_ids)  # [batch, num_classes]
             loss = self.loss_fn(logits, labels)
 
             # Passe backward (retro-propagation — cours)
             loss.backward()
 
             # Gradient clipping (stabilite numerique — cours)
-            nn.utils.clip_grad_norm_(
-                self.model.parameters(),
-                config.training.gradient_clip_value
-            )
+            nn.utils.clip_grad_norm_(self.model.parameters(), config.training.gradient_clip_value)
 
             # Mise a jour des poids (Adam — cours optimisation)
             self.optimizer.step()
@@ -274,16 +264,16 @@ class Trainer:
 
         avg_loss = total_loss / len(loader)
         weighted_f1 = f1_score(
-            all_labels, all_preds,
+            all_labels,
+            all_preds,
             labels=self._class_indices,
-            average="weighted", zero_division=0,
+            average="weighted",
+            zero_division=0,
         )
 
         return avg_loss, weighted_f1
 
-    def _eval_epoch(
-        self, loader: DataLoader
-    ) -> tuple[float, float]:
+    def _eval_epoch(self, loader: DataLoader) -> tuple[float, float]:
         """
         Une epoque d'evaluation (val ou test).
 
@@ -315,9 +305,11 @@ class Trainer:
 
         avg_loss = total_loss / len(loader)
         weighted_f1 = f1_score(
-            all_labels, all_preds,
+            all_labels,
+            all_preds,
             labels=self._class_indices,
-            average="weighted", zero_division=0,
+            average="weighted",
+            zero_division=0,
         )
 
         return avg_loss, weighted_f1
@@ -350,6 +342,5 @@ class Trainer:
         checkpoint = torch.load(self.checkpoint_path, map_location=self.device, weights_only=True)
         self.model.load_state_dict(checkpoint["model_state_dict"])
         logger.info(
-            f"Checkpoint charge : {self.checkpoint_path} "
-            f"(val_f1={checkpoint['best_val_f1']:.4f})"
+            f"Checkpoint charge : {self.checkpoint_path} (val_f1={checkpoint['best_val_f1']:.4f})"
         )

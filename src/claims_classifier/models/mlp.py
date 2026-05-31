@@ -15,6 +15,7 @@ Architecture :
 
 import torch
 import torch.nn as nn
+
 from claims_classifier.config import config
 
 
@@ -65,9 +66,8 @@ class MLP(nn.Module):
         self.classifier = nn.Sequential(
             # Dense 1 : embed_dim -> hidden_dim
             nn.Linear(embed_dim, hidden_dim),
-            nn.ReLU(),                          # activation non-lineaire (cours)
-            nn.Dropout(p=dropout),              # regularisation (cours)
-
+            nn.ReLU(),  # activation non-lineaire (cours)
+            nn.Dropout(p=dropout),  # regularisation (cours)
             # Dense 2 : hidden_dim -> num_classes (logits)
             nn.Linear(hidden_dim, num_classes),
             # Pas de Softmax ici : nn.CrossEntropyLoss l'applique en interne
@@ -97,9 +97,9 @@ class MLP(nn.Module):
         # Somme des embeddings reels / nombre de vrais tokens
         # Evite la division par zero (texte entierement vide -> impossible
         # apres nettoyage, mais on securise avec clamp)
-        sum_embedded = (embedded * mask).sum(dim=1)        # [batch, embed_dim]
-        lengths = mask.sum(dim=1).clamp(min=1.0)           # [batch, 1]
-        pooled = sum_embedded / lengths                     # [batch, embed_dim]
+        sum_embedded = (embedded * mask).sum(dim=1)  # [batch, embed_dim]
+        lengths = mask.sum(dim=1).clamp(min=1.0)  # [batch, 1]
+        pooled = sum_embedded / lengths  # [batch, embed_dim]
 
         # [batch, embed_dim] -> [batch, num_classes]
         logits = self.classifier(pooled)
@@ -112,9 +112,8 @@ class MLP(nn.Module):
 
 
 if __name__ == "__main__":
-
     # Simuler vocab et encoder
-    vocab_size = config.preprocessing.vocab_size + 2   # +2 pour <pad> et <unk>
+    vocab_size = config.preprocessing.vocab_size + 2  # +2 pour <pad> et <unk>
     num_classes = 12
 
     model = MLP(vocab_size=vocab_size, num_classes=num_classes)
@@ -130,7 +129,7 @@ if __name__ == "__main__":
     logits = model(fake_input)
 
     print("\nVerification passe forward :")
-    print(f"  Input  : {fake_input.shape}")   # [4, 256]
-    print(f"  Output : {logits.shape}")        # [4, 12]
-    print(f"  dtype  : {logits.dtype}")        # float32
+    print(f"  Input  : {fake_input.shape}")  # [4, 256]
+    print(f"  Output : {logits.shape}")  # [4, 12]
+    print(f"  dtype  : {logits.dtype}")  # float32
     print("\n MLP operationnel")

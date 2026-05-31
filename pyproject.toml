@@ -46,6 +46,25 @@ dev = [
 # Lance l'API REST. Equivalent : uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 claims-api = "api.main:run"
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests necessitant des artefacts lourds (checkpoint, CSV reel)",
+]
+addopts = "-v"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = [
+    "E501",   # line-length geree par le formateur
+]
+
+[tool.ruff.lint.per-file-ignores]
+"api/dependencies.py" = ["BLE001"]  # exception generique intentionnelle
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

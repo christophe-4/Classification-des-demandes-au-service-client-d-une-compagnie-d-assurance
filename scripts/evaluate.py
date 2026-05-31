@@ -56,9 +56,7 @@ def evaluate_model(
 
     # ── Etape 1 : chargement du modele ───────────────────────────────────────
     logger.info("Etape 1/4 : Chargement du checkpoint")
-    model_obj, vocab, label_encoder, arch_name, best_val_f1 = load_for_inference(
-        model_name=model
-    )
+    model_obj, vocab, label_encoder, arch_name, best_val_f1 = load_for_inference(model_name=model)
     device = next(model_obj.parameters()).device
 
     # ── Etape 2 : reconstruction du jeu de test ──────────────────────────────

@@ -28,24 +28,24 @@ import typer
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from claims_classifier.config import config
-from claims_classifier.data.loader import load_raw
 from claims_classifier.data.cleaning import run_cleaning
-from claims_classifier.data.vocab import Vocabulary
 from claims_classifier.data.dataset import (
     LabelEncoder,
-    make_splits,
     make_loaders,
+    make_splits,
 )
-from claims_classifier.models.mlp import MLP
-from claims_classifier.models.textcnn import TextCNN
-from claims_classifier.training.losses import build_loss
-from claims_classifier.training.trainer import Trainer
-from claims_classifier.evaluation.metrics import evaluate, check_objective
+from claims_classifier.data.loader import load_raw
+from claims_classifier.data.vocab import Vocabulary
+from claims_classifier.evaluation.metrics import check_objective, evaluate
 from claims_classifier.evaluation.reports import (
     plot_confusion_matrix,
     plot_training_history,
     save_text_report,
 )
+from claims_classifier.models.mlp import MLP
+from claims_classifier.models.textcnn import TextCNN
+from claims_classifier.training.losses import build_loss
+from claims_classifier.training.trainer import Trainer
 
 # Configuration du logging
 logging.basicConfig(
@@ -62,17 +62,20 @@ app = typer.Typer(help="Entrainement du classifieur de reclamations CFPB.")
 def train(
     model: str = typer.Option(
         "textcnn",
-        "--model", "-m",
+        "--model",
+        "-m",
         help="Architecture : 'mlp' ou 'textcnn'.",
     ),
     epochs: Optional[int] = typer.Option(
         None,
-        "--epochs", "-e",
+        "--epochs",
+        "-e",
         help="Nombre max d'epoques (defaut : config).",
     ),
     batch_size: Optional[int] = typer.Option(
         None,
-        "--batch-size", "-b",
+        "--batch-size",
+        "-b",
         help="Taille du batch (defaut : config).",
     ),
 ) -> None:
@@ -92,6 +95,7 @@ def train(
 
     # ── 0. Reproductibilite ───────────────────────────────────────────────────
     from claims_classifier.utils import set_seed
+
     set_seed(config.training.seed)
 
     # ── 1. Chargement et nettoyage ────────────────────────────────────────────
@@ -127,13 +131,14 @@ def train(
     else:
         net = TextCNN(vocab_size=vocab_size, num_classes=num_classes)
 
-    logger.info(f"Parametres entrainables : {sum(p.numel() for p in net.parameters() if p.requires_grad):,}")
+    logger.info(
+        f"Parametres entrainables : {sum(p.numel() for p in net.parameters() if p.requires_grad):,}"
+    )
 
     # ── 6. Loss ponderee ──────────────────────────────────────────────────────
     logger.info("Etape 6/8 : Construction de la loss ponderee")
     device = torch.device(
-        "cuda" if config.training.device == "cuda" and torch.cuda.is_available()
-        else "cpu"
+        "cuda" if config.training.device == "cuda" and torch.cuda.is_available() else "cpu"
     )
     loss_fn = build_loss(train_df["label"], label_encoder, device)
 
@@ -172,10 +177,7 @@ def train(
     passed = check_objective(results)
 
     if passed:
-        typer.echo(
-            f"\n Weighted F1 = {results.weighted_f1:.4f} — "
-            f"Objectif 75% ATTEINT"
-        )
+        typer.echo(f"\n Weighted F1 = {results.weighted_f1:.4f} — Objectif 75% ATTEINT")
     else:
         typer.echo(
             f"\n Weighted F1 = {results.weighted_f1:.4f} — "

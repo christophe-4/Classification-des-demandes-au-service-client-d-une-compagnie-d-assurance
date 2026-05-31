@@ -55,9 +55,7 @@ def predict(
     """Classe un texte de reclamation et affiche les N meilleures predictions."""
 
     # ── Chargement du modele ─────────────────────────────────────────────────
-    model_obj, vocab, label_encoder, arch_name, best_val_f1 = load_for_inference(
-        model_name=model
-    )
+    model_obj, vocab, label_encoder, arch_name, best_val_f1 = load_for_inference(model_name=model)
     device = next(model_obj.parameters()).device
 
     # ── Nettoyage du texte ───────────────────────────────────────────────────
@@ -75,8 +73,8 @@ def predict(
 
     # ── Inference ────────────────────────────────────────────────────────────
     with torch.no_grad():
-        logits = model_obj(input_ids)                    # [1, num_classes]
-        probs = torch.softmax(logits, dim=1)[0]          # [num_classes]
+        logits = model_obj(input_ids)  # [1, num_classes]
+        probs = torch.softmax(logits, dim=1)[0]  # [num_classes]
 
     # ── Top-k predictions ────────────────────────────────────────────────────
     k = min(top_k, label_encoder.num_classes)
@@ -92,9 +90,7 @@ def predict(
     print(f"\nPredictions (top {k}) :")
     print(f"  {'Rang':<5} {'Categorie':<35} {'Probabilite':>12}")
     print("  " + "-" * 54)
-    for rank, (prob, idx) in enumerate(
-        zip(top_probs.tolist(), top_indices.tolist()), start=1
-    ):
+    for rank, (prob, idx) in enumerate(zip(top_probs.tolist(), top_indices.tolist()), start=1):
         label = label_encoder.decode(idx)
         marker = "  <-- prediction" if rank == 1 else ""
         print(f"  {rank:<5} {label:<35} {prob * 100:>10.2f}%{marker}")

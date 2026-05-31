@@ -17,9 +17,6 @@ import time
 import torch
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from claims_classifier.config import config
-from claims_classifier.data.cleaning import clean_text
-
 from api.dependencies import ModelBundle, get_model_bundle, is_model_loaded
 from api.schemas import (
     HealthResponse,
@@ -27,6 +24,8 @@ from api.schemas import (
     PredictRequest,
     PredictResponse,
 )
+from claims_classifier.config import config
+from claims_classifier.data.cleaning import clean_text
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +35,7 @@ router = APIRouter()
 # =============================================================================
 # /health
 # =============================================================================
+
 
 @router.get("/health", response_model=HealthResponse, tags=["monitoring"])
 def health(bundle: ModelBundle = Depends(get_model_bundle)) -> HealthResponse:
@@ -58,6 +58,7 @@ def health(bundle: ModelBundle = Depends(get_model_bundle)) -> HealthResponse:
 # =============================================================================
 # /predict
 # =============================================================================
+
 
 @router.post("/predict", response_model=PredictResponse, tags=["inference"])
 def predict(

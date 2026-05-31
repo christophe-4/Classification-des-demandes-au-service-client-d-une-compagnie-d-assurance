@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    name: Lint · Format · Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv + Python 3.11
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+          enable-cache: true          # cache uv par hash de uv.lock
+
+      - name: Install dependencies
+        # torch CUDA est installe mais tourne sur CPU en CI — artefacts absents,
+        # les smoke tests utilisent uniquement des donnees synthetiques.
+        run: uv sync --all-groups
+
+      - name: Lint (ruff check)
+        run: uv run ruff check src/ api/ scripts/ tests/
+
+      - name: Format check (ruff format --check)
+        run: uv run ruff format --check src/ api/ scripts/ tests/
+
+      - name: Tests unitaires (sans integration)
+        run: uv run pytest -m "not integration" -v

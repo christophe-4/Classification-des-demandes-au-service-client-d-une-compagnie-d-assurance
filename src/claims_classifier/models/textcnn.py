@@ -26,6 +26,7 @@ Reference : Kim, Y. (2014). Convolutional Neural Networks for Sentence Classific
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from claims_classifier.config import config
 
 
@@ -85,15 +86,17 @@ class TextCNN(nn.Module):
         #   -> [batch, num_filters, seq_len - k + 1]
         #   GlobalMaxPool
         #   -> [batch, num_filters]
-        self.convolutions = nn.ModuleList([
-            nn.Conv1d(
-                in_channels=embed_dim,
-                out_channels=num_filters,
-                kernel_size=k,
-                padding=0,       # pas de padding : on veut reduire la sequence
-            )
-            for k in kernel_sizes
-        ])
+        self.convolutions = nn.ModuleList(
+            [
+                nn.Conv1d(
+                    in_channels=embed_dim,
+                    out_channels=num_filters,
+                    kernel_size=k,
+                    padding=0,  # pas de padding : on veut reduire la sequence
+                )
+                for k in kernel_sizes
+            ]
+        )
 
         # -- Couches 3-4 : Dropout + Dense ------------------------------------
         # Taille d'entree = num_filters * nombre de kernels
@@ -180,9 +183,9 @@ if __name__ == "__main__":
     logits = model(fake_input)
 
     print("\nVerification passe forward :")
-    print(f"  Input  : {fake_input.shape}")    # [4, 256]
-    print(f"  Output : {logits.shape}")         # [4, 12]
-    print(f"  dtype  : {logits.dtype}")         # float32
+    print(f"  Input  : {fake_input.shape}")  # [4, 256]
+    print(f"  Output : {logits.shape}")  # [4, 12]
+    print(f"  dtype  : {logits.dtype}")  # float32
 
     # Verifier les dimensions intermediaires
     print("\nDimensions intermediaires :")

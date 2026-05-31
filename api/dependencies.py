@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 # CONTENEUR DU MODELE EN MEMOIRE
 # =============================================================================
 
+
 @dataclass
 class ModelBundle:
     """Regroupe tout ce qui est necessaire a l'inference, charge une fois."""
@@ -46,6 +47,7 @@ _BUNDLE: ModelBundle | None = None
 # =============================================================================
 # CHARGEMENT / ACCES
 # =============================================================================
+
 
 def load_model() -> ModelBundle:
     """
@@ -68,9 +70,7 @@ def load_model() -> ModelBundle:
     logger.info("Chargement du modele pour l'API (device=cpu)...")
 
     try:
-        model, vocab, label_encoder, arch_name, best_val_f1 = load_for_inference(
-            device=device
-        )
+        model, vocab, label_encoder, arch_name, best_val_f1 = load_for_inference(device=device)
     except FileNotFoundError:
         # Propage tel quel : message explicite deja fourni par le loader.
         logger.error("Checkpoint ou artefacts introuvables.")
@@ -114,9 +114,7 @@ def get_model_bundle() -> ModelBundle:
         RuntimeError : si le modele n'est pas encore charge.
     """
     if _BUNDLE is None:
-        raise RuntimeError(
-            "Le modele n'est pas charge. L'API n'a pas demarre correctement."
-        )
+        raise RuntimeError("Le modele n'est pas charge. L'API n'a pas demarre correctement.")
     return _BUNDLE
 
 

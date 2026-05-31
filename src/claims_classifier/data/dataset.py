@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, Dataset
 
 from claims_classifier.config import config
 from claims_classifier.data.vocab import Vocabulary
@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # LABEL ENCODER
 # =============================================================================
+
 
 class LabelEncoder:
     """
@@ -95,6 +96,7 @@ class LabelEncoder:
 # DATASET PYTORCH
 # =============================================================================
 
+
 class ClaimsDataset(Dataset):
     """
     Dataset PyTorch pour les reclamations clients.
@@ -128,8 +130,7 @@ class ClaimsDataset(Dataset):
         self.vocab = vocab
         self.label_encoder = label_encoder
         self.max_seq_length = (
-            max_seq_length if max_seq_length is not None
-            else config.preprocessing.max_seq_length
+            max_seq_length if max_seq_length is not None else config.preprocessing.max_seq_length
         )
 
     def __len__(self) -> int:
@@ -155,6 +156,7 @@ class ClaimsDataset(Dataset):
 # =============================================================================
 # SPLITTING STRATIFIE
 # =============================================================================
+
 
 def make_splits(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
@@ -197,9 +199,7 @@ def make_splits(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
     val_df = val_df.reset_index(drop=True)
     test_df = test_df.reset_index(drop=True)
 
-    logger.info(
-        f"Splits : train={len(train_df):,} | val={len(val_df):,} | test={len(test_df):,}"
-    )
+    logger.info(f"Splits : train={len(train_df):,} | val={len(val_df):,} | test={len(test_df):,}")
 
     return train_df, val_df, test_df
 
@@ -207,6 +207,7 @@ def make_splits(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
 # =============================================================================
 # DATALOADERS
 # =============================================================================
+
 
 def make_loaders(
     train_df: pd.DataFrame,
@@ -241,9 +242,9 @@ def make_loaders(
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        shuffle=True,           # melange a chaque epoque (cours : SGD stochastique)
+        shuffle=True,  # melange a chaque epoque (cours : SGD stochastique)
         num_workers=num_workers,
-        pin_memory=True,        # accelere le transfert CPU -> GPU
+        pin_memory=True,  # accelere le transfert CPU -> GPU
     )
     val_loader = DataLoader(
         val_dataset,
@@ -278,8 +279,8 @@ def make_loaders(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
 
-    from claims_classifier.data.loader import load_raw
     from claims_classifier.data.cleaning import run_cleaning
+    from claims_classifier.data.loader import load_raw
 
     # Pipeline complet
     df = load_raw()
@@ -304,10 +305,10 @@ if __name__ == "__main__":
     # Verification : inspecter un batch
     print("\n--- Verification d'un batch ---")
     input_ids, labels = next(iter(train_loader))
-    print(f"input_ids shape : {input_ids.shape}")   # [64, 256]
-    print(f"labels shape    : {labels.shape}")       # [64]
-    print(f"input_ids dtype : {input_ids.dtype}")    # torch.int64
-    print(f"labels dtype    : {labels.dtype}")       # torch.int64
+    print(f"input_ids shape : {input_ids.shape}")  # [64, 256]
+    print(f"labels shape    : {labels.shape}")  # [64]
+    print(f"input_ids dtype : {input_ids.dtype}")  # torch.int64
+    print(f"labels dtype    : {labels.dtype}")  # torch.int64
     print("\nPremier exemple du batch :")
     print(f"  IDs     : {input_ids[0][:10].tolist()}... (256 total)")
     print(f"  Label   : {labels[0].item()} -> '{label_encoder.decode(labels[0].item())}'")

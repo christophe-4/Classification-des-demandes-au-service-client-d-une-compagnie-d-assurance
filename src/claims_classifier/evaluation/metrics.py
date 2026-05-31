@@ -2,7 +2,7 @@
 Metriques d'evaluation du modele de classification.
 
 Metriques implementees :
-  - Weighted F1 Score 
+  - Weighted F1 Score
   - Macro F1 Score
   - F1 par classe
   - Accuracy
@@ -14,12 +14,12 @@ from dataclasses import dataclass, field
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 from sklearn.metrics import (
-    f1_score,
     accuracy_score,
     classification_report,
+    f1_score,
 )
+from torch.utils.data import DataLoader
 
 from claims_classifier.data.dataset import LabelEncoder
 
@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # DATACLASS DE RESULTATS
 # =============================================================================
+
 
 @dataclass
 class EvaluationResults:
@@ -44,6 +45,7 @@ class EvaluationResults:
         all_preds    : Toutes les predictions (pour la matrice de confusion).
         all_labels   : Tous les vrais labels (pour la matrice de confusion).
     """
+
     weighted_f1: float
     macro_f1: float
     accuracy: float
@@ -57,24 +59,25 @@ class EvaluationResults:
         target = 0.75
         status = "OBJECTIF ATTEINT" if self.weighted_f1 >= target else "OBJECTIF NON ATTEINT"
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"  {title}")
-        print(f"{'='*60}")
-        print(f"  Weighted F1  : {self.weighted_f1:.4f}  ({self.weighted_f1*100:.2f}%)  {status}")
-        print(f"  Macro F1     : {self.macro_f1:.4f}  ({self.macro_f1*100:.2f}%)")
-        print(f"  Accuracy     : {self.accuracy:.4f}  ({self.accuracy*100:.2f}%)")
+        print(f"{'=' * 60}")
+        print(f"  Weighted F1  : {self.weighted_f1:.4f}  ({self.weighted_f1 * 100:.2f}%)  {status}")
+        print(f"  Macro F1     : {self.macro_f1:.4f}  ({self.macro_f1 * 100:.2f}%)")
+        print(f"  Accuracy     : {self.accuracy:.4f}  ({self.accuracy * 100:.2f}%)")
         print("\n  F1 par classe :")
-        print(f"  {'-'*45}")
+        print(f"  {'-' * 45}")
         for cls, f1 in sorted(self.f1_per_class.items(), key=lambda x: x[1]):
             bar = "#" * int(f1 * 20)
             flag = " (!)" if f1 < 0.5 else ""
             print(f"  {cls:<30} {f1:.4f}  {bar}{flag}")
-        print(f"{'='*60}\n")
+        print(f"{'=' * 60}\n")
 
 
 # =============================================================================
 # EVALUATION
 # =============================================================================
+
 
 def evaluate(
     model: nn.Module,
@@ -113,24 +116,30 @@ def evaluate(
 
     # Metriques globales
     weighted_f1 = f1_score(
-        all_labels, all_preds, labels=class_indices,
-        average="weighted", zero_division=0,
+        all_labels,
+        all_preds,
+        labels=class_indices,
+        average="weighted",
+        zero_division=0,
     )
     macro_f1 = f1_score(
-        all_labels, all_preds, labels=class_indices,
-        average="macro", zero_division=0,
+        all_labels,
+        all_preds,
+        labels=class_indices,
+        average="macro",
+        zero_division=0,
     )
     accuracy = accuracy_score(all_labels, all_preds)
 
     # F1 par classe — l'ordre suit class_indices, donc class_names
     f1_scores = f1_score(
-        all_labels, all_preds, labels=class_indices,
-        average=None, zero_division=0,
+        all_labels,
+        all_preds,
+        labels=class_indices,
+        average=None,
+        zero_division=0,
     )
-    f1_per_class = {
-        class_names[i]: float(f1_scores[i])
-        for i in range(len(class_names))
-    }
+    f1_per_class = {class_names[i]: float(f1_scores[i]) for i in range(len(class_names))}
 
     # Rapport complet scikit-learn
     report = classification_report(
@@ -166,13 +175,9 @@ def check_objective(results: EvaluationResults) -> bool:
     passed = results.weighted_f1 >= target
 
     if passed:
-        logger.info(
-            f"Objectif atteint : Weighted F1 = {results.weighted_f1:.4f} >= {target}"
-        )
+        logger.info(f"Objectif atteint : Weighted F1 = {results.weighted_f1:.4f} >= {target}")
     else:
-        logger.warning(
-            f"Objectif non atteint : Weighted F1 = {results.weighted_f1:.4f} < {target}"
-        )
+        logger.warning(f"Objectif non atteint : Weighted F1 = {results.weighted_f1:.4f} < {target}")
 
     return passed
 
@@ -184,10 +189,18 @@ if __name__ == "__main__":
     import random
 
     class_names = [
-        "bank_account_or_service", "checking_or_savings", "consumer_loan",
-        "credit_card", "credit_reporting", "debt_collection",
-        "money_transfer", "mortgage", "other", "payday_loan",
-        "student_loan", "vehicle_loan"
+        "bank_account_or_service",
+        "checking_or_savings",
+        "consumer_loan",
+        "credit_card",
+        "credit_reporting",
+        "debt_collection",
+        "money_transfer",
+        "mortgage",
+        "other",
+        "payday_loan",
+        "student_loan",
+        "vehicle_loan",
     ]
 
     n = 1000
@@ -197,12 +210,18 @@ if __name__ == "__main__":
     num_classes = len(class_names)
     class_indices = list(range(num_classes))
 
-    weighted_f1 = f1_score(all_labels, all_preds, labels=class_indices, average="weighted", zero_division=0)
-    macro_f1 = f1_score(all_labels, all_preds, labels=class_indices, average="macro", zero_division=0)
+    weighted_f1 = f1_score(
+        all_labels, all_preds, labels=class_indices, average="weighted", zero_division=0
+    )
+    macro_f1 = f1_score(
+        all_labels, all_preds, labels=class_indices, average="macro", zero_division=0
+    )
     accuracy = accuracy_score(all_labels, all_preds)
     f1_scores = f1_score(all_labels, all_preds, labels=class_indices, average=None, zero_division=0)
     f1_per_class = {class_names[i]: float(f1_scores[i]) for i in range(num_classes)}
-    report = classification_report(all_labels, all_preds, labels=class_indices, target_names=class_names, zero_division=0)
+    report = classification_report(
+        all_labels, all_preds, labels=class_indices, target_names=class_names, zero_division=0
+    )
 
     results = EvaluationResults(
         weighted_f1=weighted_f1,

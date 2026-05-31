@@ -7,9 +7,9 @@ Configuration centrale du projet claims-classifier.
 """
 
 from pathlib import Path
+
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 
 # =============================================================================
 # CHEMINS DU PROJET
@@ -53,6 +53,7 @@ class ArtifactsPaths(BaseModel):
 # =============================================================================
 # HYPERPARAMETRES
 # =============================================================================
+
 
 class PreprocessingConfig(BaseModel):
     """Parametres de pretraitement du texte."""
@@ -125,6 +126,7 @@ class TrainingConfig(BaseModel):
 # CONFIGURATION GLOBALE
 # =============================================================================
 
+
 class Config(BaseSettings):
     """
     Configuration complete du projet.
@@ -155,9 +157,11 @@ config = Config()
 # UTILITAIRE
 # =============================================================================
 
+
 def print_config() -> None:
     """Affiche la configuration courante (utile pour debugger)."""
     import json
+
     print(json.dumps(config.model_dump(mode="json"), indent=2, default=str))
 
 

@@ -16,9 +16,10 @@ Reference cours : "Optimisation numerique" + "Regularisation et stabilite"
 """
 
 import logging
+
+import pandas as pd
 import torch
 import torch.nn as nn
-import pandas as pd
 
 from claims_classifier.data.dataset import LabelEncoder
 
@@ -50,7 +51,7 @@ def compute_class_weights(
     weights = []
     logger.info("Poids des classes (CrossEntropy ponderee) :")
     logger.info(f"  {'Classe':<30} {'n_i':>8} {'weight':>8}")
-    logger.info(f"  {'-'*50}")
+    logger.info(f"  {'-' * 50}")
 
     for class_name in label_encoder.classes:
         n_i = counts.get(class_name, 1)
@@ -75,7 +76,7 @@ def build_loss(
       2. NLLLoss     : negative log-likelihood
 
     C'est plus stable numeriquement que d'appliquer Softmax puis log
-    separement 
+    separement
 
     Args:
         train_labels  : Labels du jeu d'entrainement.
@@ -101,9 +102,9 @@ def build_loss(
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
 
-    from claims_classifier.data.loader import load_raw
     from claims_classifier.data.cleaning import run_cleaning
-    from claims_classifier.data.dataset import make_splits, LabelEncoder
+    from claims_classifier.data.dataset import LabelEncoder, make_splits
+    from claims_classifier.data.loader import load_raw
 
     df = load_raw()
     df = run_cleaning(df)

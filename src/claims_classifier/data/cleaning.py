@@ -8,7 +8,9 @@ Deux responsabilites :
 
 import logging
 import re
+
 import pandas as pd
+
 from claims_classifier.config import config
 
 logger = logging.getLogger(__name__)
@@ -23,22 +25,18 @@ LABEL_MAPPING: dict[str, str] = {
     "Credit reporting, credit repair services, or other personal consumer reports": "credit_reporting",
     "Credit reporting or other personal consumer reports": "credit_reporting",
     "Credit reporting": "credit_reporting",
-
     # --- Groupe 2 : Credit card (3 -> 1) ---
     "Credit card or prepaid card": "credit_card",
     "Credit card": "credit_card",
     "Prepaid card": "credit_card",
-
     # --- Groupe 3 : Money transfer (3 -> 1) ---
     "Money transfer, virtual currency, or money service": "money_transfer",
     "Money transfers": "money_transfer",
     "Virtual currency": "money_transfer",
-
     # --- Groupe 4 : Payday loan (3 -> 1) ---
     "Payday loan, title loan, or personal loan": "payday_loan",
     "Payday loan, title loan, personal loan, or advance loan": "payday_loan",
     "Payday loan": "payday_loan",
-
     # --- Classes conservees telles quelles ---
     "Debt collection": "debt_collection",
     "Mortgage": "mortgage",
@@ -47,7 +45,6 @@ LABEL_MAPPING: dict[str, str] = {
     "Vehicle loan or lease": "vehicle_loan",
     "Bank account or service": "bank_account_or_service",
     "Consumer Loan": "consumer_loan",
-
     # --- Classes ultra-rares -> fusionnees en "other" ---
     "Debt or credit management": "other",
     "Other financial service": "other",
@@ -160,6 +157,7 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 # PIPELINE COMPLET
 # =============================================================================
 
+
 def run_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """
     Pipeline complet : mapping des labels + nettoyage du texte.
@@ -178,7 +176,7 @@ def run_cleaning(df: pd.DataFrame) -> pd.DataFrame:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
 
-    from claims_classifier.data.loader import load_raw, describe_dataset
+    from claims_classifier.data.loader import describe_dataset, load_raw
 
     df = load_raw()
     df = run_cleaning(df)

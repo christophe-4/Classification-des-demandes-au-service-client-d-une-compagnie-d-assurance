@@ -2,7 +2,7 @@
 Generation des rapports visuels d'evaluation.
 
 Livrables produits :
-  - Matrice de confusion normalisee 
+  - Matrice de confusion normalisee
   - Courbes d'entrainement (loss et F1 par epoque)
   - Rapport texte final
 """
@@ -10,8 +10,8 @@ Livrables produits :
 import logging
 from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
@@ -139,8 +139,7 @@ def plot_training_history(
     # -- Courbe Weighted F1 ----------------------------------------------------
     axes[1].plot(epochs, history["train_f1"], "b-o", markersize=4, label="Train")
     axes[1].plot(epochs, history["val_f1"], "r-o", markersize=4, label="Validation")
-    axes[1].axhline(y=0.75, color="green", linestyle="--", linewidth=1.5,
-                    label="Objectif 75%")
+    axes[1].axhline(y=0.75, color="green", linestyle="--", linewidth=1.5, label="Objectif 75%")
     axes[1].set_xlabel("Epoque")
     axes[1].set_ylabel("Weighted F1")
     axes[1].set_title(f"Weighted F1 Score — {model_name.upper()}", fontweight="bold")
@@ -150,7 +149,9 @@ def plot_training_history(
 
     plt.suptitle(
         f"Courbes d'entrainement — {model_name.upper()}",
-        fontsize=14, fontweight="bold", y=1.02,
+        fontsize=14,
+        fontweight="bold",
+        y=1.02,
     )
     plt.tight_layout()
 
@@ -186,9 +187,9 @@ def save_text_report(
         f.write(f"RAPPORT D'EVALUATION — {model_name.upper()}\n")
         f.write("=" * 60 + "\n\n")
 
-        f.write(f"Weighted F1  : {results.weighted_f1:.4f} ({results.weighted_f1*100:.2f}%)\n")
-        f.write(f"Macro F1     : {results.macro_f1:.4f} ({results.macro_f1*100:.2f}%)\n")
-        f.write(f"Accuracy     : {results.accuracy:.4f} ({results.accuracy*100:.2f}%)\n")
+        f.write(f"Weighted F1  : {results.weighted_f1:.4f} ({results.weighted_f1 * 100:.2f}%)\n")
+        f.write(f"Macro F1     : {results.macro_f1:.4f} ({results.macro_f1 * 100:.2f}%)\n")
+        f.write(f"Accuracy     : {results.accuracy:.4f} ({results.accuracy * 100:.2f}%)\n")
 
         status = "ATTEINT" if results.weighted_f1 >= 0.75 else "NON ATTEINT"
         f.write(f"Objectif 75% : {status}\n\n")
@@ -215,14 +216,24 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
 
     import random
+
+    from sklearn.metrics import accuracy_score, classification_report, f1_score
+
     from claims_classifier.evaluation.metrics import EvaluationResults
-    from sklearn.metrics import f1_score, accuracy_score, classification_report
 
     class_names = [
-        "bank_account_or_service", "checking_or_savings", "consumer_loan",
-        "credit_card", "credit_reporting", "debt_collection",
-        "money_transfer", "mortgage", "other", "payday_loan",
-        "student_loan", "vehicle_loan",
+        "bank_account_or_service",
+        "checking_or_savings",
+        "consumer_loan",
+        "credit_card",
+        "credit_reporting",
+        "debt_collection",
+        "money_transfer",
+        "mortgage",
+        "other",
+        "payday_loan",
+        "student_loan",
+        "vehicle_loan",
     ]
 
     n = 500
@@ -235,9 +246,7 @@ if __name__ == "__main__":
         accuracy=accuracy_score(all_labels, all_preds),
         f1_per_class={
             class_names[i]: float(s)
-            for i, s in enumerate(
-                f1_score(all_labels, all_preds, average=None, zero_division=0)
-            )
+            for i, s in enumerate(f1_score(all_labels, all_preds, average=None, zero_division=0))
         },
         report=classification_report(
             all_labels, all_preds, target_names=class_names, zero_division=0
@@ -248,8 +257,12 @@ if __name__ == "__main__":
 
     cm_path = plot_confusion_matrix(results, class_names, model_name="test")
     hist_path = plot_training_history(
-        {"train_loss": [1.2, 1.0, 0.8], "val_loss": [1.3, 1.1, 0.9],
-         "train_f1": [0.3, 0.5, 0.7], "val_f1": [0.25, 0.45, 0.65]},
+        {
+            "train_loss": [1.2, 1.0, 0.8],
+            "val_loss": [1.3, 1.1, 0.9],
+            "train_f1": [0.3, 0.5, 0.7],
+            "val_f1": [0.25, 0.45, 0.65],
+        },
         model_name="test",
     )
     report_path = save_text_report(results, model_name="test")

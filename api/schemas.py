@@ -10,10 +10,10 @@ et alimentent la documentation interactive (/docs).
 
 from pydantic import BaseModel, Field
 
-
 # =============================================================================
 # REQUETES
 # =============================================================================
+
 
 class PredictRequest(BaseModel):
     """Corps d'une requete de prediction."""
@@ -39,22 +39,19 @@ class PredictRequest(BaseModel):
 # REPONSES
 # =============================================================================
 
+
 class PredictionItem(BaseModel):
     """Une prediction unitaire : classe + probabilite."""
 
     class_name: str = Field(..., description="Nom de la categorie predite.")
-    probability: float = Field(
-        ..., description="Probabilite associee (arrondie a 4 decimales)."
-    )
+    probability: float = Field(..., description="Probabilite associee (arrondie a 4 decimales).")
 
 
 class PredictResponse(BaseModel):
     """Reponse complete d'une prediction."""
 
     prediction: str = Field(..., description="Classe la plus probable.")
-    confidence: float = Field(
-        ..., description="Probabilite de la classe principale (4 decimales)."
-    )
+    confidence: float = Field(..., description="Probabilite de la classe principale (4 decimales).")
     top_k: list[PredictionItem] = Field(
         ..., description="Liste des k meilleures predictions, triees par probabilite."
     )
@@ -62,9 +59,7 @@ class PredictResponse(BaseModel):
     weighted_f1: float = Field(
         ..., description="Weighted F1 de validation du checkpoint (ex: 0.8276)."
     )
-    inference_time_ms: float = Field(
-        ..., description="Temps d'inference en millisecondes."
-    )
+    inference_time_ms: float = Field(..., description="Temps d'inference en millisecondes.")
 
 
 class HealthResponse(BaseModel):
