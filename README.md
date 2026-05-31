@@ -9,6 +9,7 @@
 [![Tests](https://img.shields.io/badge/tests-12_passed-brightgreen)](tests/)
 [![HF Space](https://img.shields.io/badge/🤗_HuggingFace-Space_Demo-yellow)](https://huggingface.co/spaces/FrenchEdtech/claims-classifier-demo)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-monitoring-FF4B4B?logo=streamlit&logoColor=white)](monitoring/dashboard.py)
 
 > **Template PME** : modèle de Deep Learning NLP entraîné *from scratch* sur 300 000 réclamations
 > clients réelles (CFPB). Déployable pour automatiser le routage de réclamations en entreprise.
@@ -54,6 +55,8 @@ routage automatique dès la réception — temps de traitement divisé par 5 à 
 
 ## 🧠 Architecture technique
 
+### Modèle — Pipeline TextCNN
+
 ```
 Texte brut (réclamation client)
         │
@@ -65,26 +68,55 @@ Texte brut (réclamation client)
         │
         ▼
 [EMBEDDING]  (30 002 × 128)  ← représentation vectorielle des tokens
-        │                       cours : vecteurs / matrices
-        ▼
-[CONV1D × 3]  kernels 3, 4, 5 en parallèle
-        │       détecte trigrammes, quadrigrammes, pentagrammes
-        │       cours : filtres CNN appliqués au texte (Kim 2014)
-        ▼
-[GLOBAL MAX-POOL]  valeur max par filtre → motif le plus actif
-        │           cours : pooling
-        ▼
-[CONCAT + DROPOUT 0.5]  384 dimensions · régularisation
-        │                cours : régularisation, weight_decay
-        ▼
-[DENSE]  384 → 12 logits
         │
         ▼
-[SOFTMAX]  probabilités sur 12 classes  ← cours : perceptron, backprop, Adam
+[CONV1D × 3]  kernels 3, 4, 5 en parallèle  ← détecte trigrammes / quadrigrammes / pentagrammes
+        │
+        ▼
+[GLOBAL MAX-POOL]  valeur max par filtre → motif le plus actif
+        │
+        ▼
+[CONCAT + DROPOUT 0.5]  384 dimensions
+        │
+        ▼
+[DENSE]  384 → 12 logits  →  [SOFTMAX]  probabilités sur 12 classes
 ```
 
 **4 041 868 paramètres entraînables** · Early stopping (patience=3) · CrossEntropy pondérée
 (compense le déséquilibre 957:1) · Adam (lr=1e-3, weight_decay=1e-5)
+
+### Système complet — De la donnée brute à la production
+
+```
+complaints.csv (300 k lignes)
+        │
+        ▼
+[PIPELINE DATA]  nettoyage · vocab · splits 70/15/15 stratifiés
+        │
+        ▼
+[ENTRAÎNEMENT]  TextCNN from scratch · GPU RTX 3090 · TensorBoard
+        │
+        ├──────────────────────────────────────────────────────────┐
+        ▼                                                          ▼
+[ÉVALUATION]  Weighted F1=83.12%                        [BASELINE]  stats de référence
+ Matrice de confusion · rapports                         distribution classes · longueurs · unk
+        │
+        ▼
+[API REST]  FastAPI · POST /predict · GET /health
+        │         latence ~9 ms sur CPU
+        ├─────────────────────────────────────────────────────────┐
+        ▼                                                         ▼
+[DOCKER]  image multi-stage · non-root · HEALTHCHECK   [LOGS JSONL]  métadonnées RGPD
+ .\tasks.ps1 api                                         timestamp · classe · confiance · unk_rate
+                                                                  │
+        ┌─────────────────────────────────────────────────────────┘
+        ▼
+[MONITORING]  detect_drift() · TVD · longueurs · tokens inconnus
+ Dashboard Streamlit · .\tasks.ps1 dashboard
+        │
+        ▼
+[DÉMO LIVE]  Hugging Face Spaces · Gradio · sans installation
+```
 
 ---
 
@@ -116,7 +148,7 @@ claims-classifier/
 ├── data/
 │   ├── raw/               # complaints.csv (à placer ici, non versionné)
 │   ├── interim/           # CSV nettoyé intermédiaire
-│   └── processed/         # vocab.json · label_encoder.json
+│   └── processed/         # vocab.json · label_encoder.json · baseline_stats.json
 │
 ├── notebooks/
 │   ├── 01_eda.ipynb                      # Analyse exploratoire
@@ -125,20 +157,37 @@ claims-classifier/
 ├── reports/figures/       # Confusion matrix + courbes d'entraînement
 │
 ├── src/claims_classifier/
-│   ├── config.py          # Hyperparamètres centralisés (pydantic-settings)
+│   ├── config.py          # Hyperparamètres + MonitoringConfig (pydantic-settings)
 │   ├── data/              # Chargement · nettoyage · vocab · dataset PyTorch
 │   ├── models/            # MLP · TextCNN (from scratch)
 │   ├── training/          # Trainer · early stopping · loss pondérée
 │   ├── evaluation/        # Métriques · matrice de confusion · rapports
-│   └── inference/         # Loader autonome pour la production
+│   ├── inference/         # Loader autonome pour la production
+│   └── monitoring/        # logger.py · baseline.py · drift.py
+│
+├── api/
+│   ├── main.py            # Application FastAPI (lifespan + CORS)
+│   ├── schemas.py         # Pydantic : PredictRequest / PredictResponse / HealthResponse
+│   ├── dependencies.py    # ModelBundle singleton (chargement unique)
+│   └── routers/predict.py # GET /health · POST /predict (avec logging RGPD)
+│
+├── monitoring/
+│   └── dashboard.py       # Dashboard Streamlit (KPIs · dérive · logs)
+│
+├── logs/                  # predictions.jsonl (ignoré par git, RGPD)
 │
 ├── scripts/
 │   ├── train.py           # CLI entraînement complet
 │   ├── evaluate.py        # Évaluation sur le jeu de test
-│   └── predict.py         # Prédiction sur texte libre
+│   ├── predict.py         # Prédiction sur texte libre
+│   └── compute_baseline.py# Calcul de la baseline de référence
 │
-├── tests/test_smoke.py    # 12 tests unitaires
-├── pyproject.toml         # Dépendances + config ruff
+├── hf_space/              # Démo Hugging Face Spaces (Gradio, auto-suffisant)
+├── Dockerfile             # Image multi-stage CPU (~1.4 Go)
+├── .github/workflows/     # CI GitHub Actions (lint + format + tests)
+├── tests/test_smoke.py    # 12 smoke tests unitaires (sans artefacts)
+├── tasks.ps1              # Raccourcis : install · train · api · dashboard · baseline
+├── pyproject.toml         # Dépendances + config ruff + pytest
 ├── uv.lock                # Lockfile reproductible
 └── .python-version        # Python 3.11
 ```
@@ -221,6 +270,63 @@ Latence d'inférence : ~9 ms sur CPU.
 
 ---
 
+## 📊 Monitoring
+
+Système de surveillance complet pour détecter la **dérive des données en production**,
+sans base de données externe — uniquement JSONL + Streamlit.
+
+### Logging RGPD-conforme
+
+Chaque prédiction est enregistrée dans `logs/predictions.jsonl` (jamais le texte brut) :
+
+```json
+{
+  "timestamp": "2026-05-31T03:46:21Z",
+  "text_length": 21,
+  "num_unknown_tokens": 0,
+  "unk_rate": 0.0,
+  "predicted_class": "debt_collection",
+  "confidence": 0.6007,
+  "top_k": [{"class_name": "debt_collection", "probability": 0.6007}, "..."],
+  "inference_time_ms": 16.25,
+  "model_name": "textcnn"
+}
+```
+
+### Détection de dérive (`drift.py`)
+
+4 indicateurs comparés à la baseline d'entraînement :
+
+| Indicateur | Méthode | Seuils |
+|------------|---------|--------|
+| Distribution des classes | Total Variation Distance (TVD) | ⚠️ > 10 % · 🔴 > 20 % |
+| Longueur des textes | Ratio médiane obs / baseline | ⚠️ > 2× · 🔴 > 3× |
+| Taux tokens inconnus | Moyenne `unk_rate` | ⚠️ > 15 % · 🔴 > 30 % |
+| Prédictions incertaines | Taux confiance < 0.5 | ⚠️ > 20 % · 🔴 > 40 % |
+
+### Dashboard Streamlit
+
+> *[Capture à venir — lancez le dashboard localement pour le voir]*
+
+KPIs en temps réel · Distribution prédit vs baseline · Rapport de dérive coloré ·
+Tableau des 20 dernières prédictions (sans texte brut)
+
+### Commandes
+
+```powershell
+# 1. Calculer la baseline (une seule fois, nécessite complaints.csv)
+.\tasks.ps1 baseline
+
+# 2. Lancer l'API avec logging automatique
+.\tasks.ps1 api
+
+# 3. Ouvrir le dashboard de monitoring
+.\tasks.ps1 dashboard
+# → http://localhost:8501
+```
+
+---
+
 ## 📈 Visualisations
 
 ### Matrice de confusion — TextCNN (jeu de test, 44 979 observations)
@@ -243,6 +349,11 @@ Latence d'inférence : ~9 ms sur CPU.
 | Config | pydantic-settings | Hyperparamètres centralisés, surchargeables par env |
 | ML classique | scikit-learn | Métriques (Weighted F1, confusion matrix) |
 | Suivi entraînement | TensorBoard | Courbes loss / F1 par époque |
+| API REST | FastAPI + uvicorn | Endpoints `/health` & `/predict`, ~9 ms sur CPU |
+| Conteneurisation | Docker | Image multi-stage CPU, non-root, HEALTHCHECK |
+| Démo live | Gradio + HF Spaces | Interface web sans installation |
+| Monitoring | Streamlit | Dashboard de dérive + logs JSONL RGPD-safe |
+| CI/CD | GitHub Actions | Lint (ruff) + format + tests à chaque push |
 | Linting | ruff | Qualité du code |
 | Tests | pytest | 12 smoke tests (config, modèles, pipeline) |
 
@@ -262,7 +373,7 @@ Latence d'inférence : ~9 ms sur CPU.
 - [x] Démo Hugging Face Space (Gradio)
 - [x] API REST FastAPI (`POST /predict`)
 - [x] Conteneurisation Docker
-- [ ] Monitoring data drift (distribution des classes en production)
+- [x] Monitoring data drift (distribution des classes en production)
 - [ ] Amélioration classes minoritaires (augmentation de données, oversampling)
 
 ---
