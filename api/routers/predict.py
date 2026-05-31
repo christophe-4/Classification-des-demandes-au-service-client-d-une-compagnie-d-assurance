@@ -26,6 +26,7 @@ from api.schemas import (
 )
 from claims_classifier.config import config
 from claims_classifier.data.cleaning import clean_text
+from claims_classifier.monitoring.logger import log_prediction
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,11 @@ def predict(
     label_encoder = bundle.label_encoder
     max_len = config.preprocessing.max_seq_length
 
+    # Metadonnees RGPD — calculees ici, jamais le texte brut
+    words = cleaned.split()
+    text_length = len(words)
+    num_unknown_tokens = sum(1 for w in words if w not in vocab.word2idx)
+
     # Tokenisation + troncature + padding (identique a ClaimsDataset)
     ids = vocab.encode(cleaned)[:max_len]
     ids = ids + [vocab.pad_id] * (max_len - len(ids))
@@ -110,7 +116,7 @@ def predict(
         for prob, idx in zip(top.values.tolist(), top.indices.tolist())
     ]
 
-    return PredictResponse(
+    response = PredictResponse(
         prediction=top_items[0].class_name,
         confidence=top_items[0].probability,
         top_k=top_items,
@@ -118,3 +124,19 @@ def predict(
         weighted_f1=round(bundle.weighted_f1, 4),
         inference_time_ms=round(inference_time_ms, 2),
     )
+
+    # Logging RGPD-conforme — fail-safe : une erreur ici ne bloque jamais la reponse
+    try:
+        log_prediction(
+            text_length=text_length,
+            num_unknown_tokens=num_unknown_tokens,
+            predicted_class=response.prediction,
+            confidence=response.confidence,
+            top_k=[{"class_name": item.class_name, "probability": item.probability} for item in top_items],
+            inference_time_ms=response.inference_time_ms,
+            model_name=bundle.model_name,
+        )
+    except Exception as log_err:
+        logger.warning(f"Logging monitoring echoue (non-bloquant) : {log_err}")
+
+    return response

@@ -54,6 +54,10 @@ desktop.ini
 .idea/
 *.swp
 
+# ── Logs de monitoring (RGPD : ne jamais versionner) ──
+logs/
+!logs/.gitkeep
+
 # ── Fichiers internes / développement ─────────────────
 CONTEXT.md
 reports/figures/*_test.png

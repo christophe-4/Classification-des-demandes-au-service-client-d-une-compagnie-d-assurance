@@ -44,6 +44,16 @@ switch ($Task) {
         uv run uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
     }
 
+    "dashboard" {
+        Write-Host "Lancement du dashboard Streamlit..." -ForegroundColor Cyan
+        uv run streamlit run monitoring/dashboard.py
+    }
+
+    "baseline" {
+        Write-Host "Calcul de la baseline de reference..." -ForegroundColor Cyan
+        uv run python scripts/compute_baseline.py
+    }
+
     "tensorboard" {
         Write-Host "Lancement de TensorBoard..." -ForegroundColor Cyan
         uv run tensorboard --logdir runs/
@@ -73,6 +83,8 @@ switch ($Task) {
         Write-Host "  train       - Lancer l'entrainement"
         Write-Host "  evaluate    - Evaluer le modele"
         Write-Host "  api         - Lancer l'API FastAPI (port 8000)"
+        Write-Host "  dashboard   - Lancer le dashboard Streamlit de monitoring"
+        Write-Host "  baseline    - Calculer la baseline de reference (necessite complaints.csv)"
         Write-Host "  tensorboard - Lancer TensorBoard"
         Write-Host "  clean       - Nettoyer les fichiers temporaires"
         Write-Host "  check       - Verifier l'environnement"

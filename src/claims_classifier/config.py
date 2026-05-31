@@ -122,6 +122,37 @@ class TrainingConfig(BaseModel):
     device: str = "cuda"  # Sera bascule en "cpu" automatiquement si pas de GPU
 
 
+class MonitoringConfig(BaseModel):
+    """Configuration du monitoring en production (data drift, logs, seuils)."""
+
+    # Chemins
+    logs_dir: Path = PROJECT_ROOT / "logs"
+    predictions_log_path: Path = PROJECT_ROOT / "logs" / "predictions.jsonl"
+    baseline_stats_path: Path = PROJECT_ROOT / "data" / "processed" / "baseline_stats.json"
+
+    # Seuil de confiance "faible" — en dessous, la prediction est incertaine
+    low_confidence_threshold: float = 0.5
+
+    # Taux de predictions a faible confiance
+    low_confidence_rate_warning: float = 0.20  # 20 % -> WARNING
+    low_confidence_rate_alert: float = 0.40  # 40 % -> ALERT
+
+    # Taux de tokens inconnus (<unk>) — signal de vocabulaire nouveau
+    unk_rate_warning: float = 0.15  # 15 % de tokens inconnus -> WARNING
+    unk_rate_alert: float = 0.30  # 30 % de tokens inconnus -> ALERT
+
+    # Derive de la distribution des classes (Total Variation Distance)
+    class_drift_warning: float = 0.10  # TVD > 10 % -> WARNING
+    class_drift_alert: float = 0.20  # TVD > 20 % -> ALERT
+
+    # Derive de la longueur des textes (ratio median_recents / median_baseline)
+    text_length_ratio_warning: float = 2.0  # 2x plus court/long -> WARNING
+    text_length_ratio_alert: float = 3.0  # 3x plus court/long -> ALERT
+
+    # Minimum de predictions necessaires pour calculer la derive
+    min_predictions_for_drift: int = 50
+
+
 # =============================================================================
 # CONFIGURATION GLOBALE
 # =============================================================================
@@ -147,6 +178,7 @@ class Config(BaseSettings):
     split: SplitConfig = Field(default_factory=SplitConfig)
     model: ModelConfig = Field(default_factory=ModelConfig)
     training: TrainingConfig = Field(default_factory=TrainingConfig)
+    monitoring: MonitoringConfig = Field(default_factory=MonitoringConfig)
 
 
 # Instance globale, importable partout dans le projet
