@@ -5,17 +5,20 @@ description = "Multi-class classifier for consumer complaints (CFPB)"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.136.3",
     "matplotlib>=3.10.9",
     "numpy>=2.4.4",
     "openpyxl>=3.1.5",
     "pandas>=3.0.3",
     "pydantic-settings>=2.14.1",
+    "python-multipart>=0.0.29",
     "scikit-learn>=1.8.0",
     "seaborn>=0.13.2",
     "tensorboard>=2.20.0",
     "torch>=2.5.1",
     "tqdm>=4.67.3",
     "typer>=0.25.1",
+    "uvicorn[standard]>=0.48.0",
 ]
 
 [tool.uv]
@@ -39,9 +42,13 @@ dev = [
     "huggingface-hub>=1.16.1",
 ]
 
+[project.scripts]
+# Lance l'API REST. Equivalent : uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
+claims-api = "api.main:run"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/claims_classifier"]
+packages = ["src/claims_classifier", "api"]

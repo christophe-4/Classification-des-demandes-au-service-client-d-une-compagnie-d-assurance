@@ -39,6 +39,11 @@ switch ($Task) {
         uv run python scripts/evaluate.py
     }
 
+    "api" {
+        Write-Host "Lancement de l'API FastAPI..." -ForegroundColor Cyan
+        uv run uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+    }
+
     "tensorboard" {
         Write-Host "Lancement de TensorBoard..." -ForegroundColor Cyan
         uv run tensorboard --logdir runs/
@@ -67,6 +72,7 @@ switch ($Task) {
         Write-Host "  test        - Lancer les tests pytest"
         Write-Host "  train       - Lancer l'entrainement"
         Write-Host "  evaluate    - Evaluer le modele"
+        Write-Host "  api         - Lancer l'API FastAPI (port 8000)"
         Write-Host "  tensorboard - Lancer TensorBoard"
         Write-Host "  clean       - Nettoyer les fichiers temporaires"
         Write-Host "  check       - Verifier l'environnement"
