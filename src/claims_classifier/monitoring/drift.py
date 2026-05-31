@@ -72,11 +72,10 @@ class DriftReport:
             "-" * 60,
         ]
         for ind in self.indicators:
-            icon = {"OK": "[OK]", "WARNING": "[WARN]", "ALERT": "[ALERT]"}.get(ind.status.value, "[?]")
-            lines.append(
-                f"{icon:<8} {ind.name:<40} {ind.value:.4f}{ind.unit}"
-                f"  -- {ind.message}"
+            icon = {"OK": "[OK]", "WARNING": "[WARN]", "ALERT": "[ALERT]"}.get(
+                ind.status.value, "[?]"
             )
+            lines.append(f"{icon:<8} {ind.name:<40} {ind.value:.4f}{ind.unit}  -- {ind.message}")
         return "\n".join(lines)
 
 
@@ -177,8 +176,12 @@ def detect_drift(
     tvd = _total_variation_distance(observed_distribution, baseline_distribution)
     status_tvd = _status_from_value(tvd, cfg.class_drift_warning, cfg.class_drift_alert)
 
-    top_obs = max(observed_distribution, key=observed_distribution.get) if observed_distribution else "?"
-    top_base = max(baseline_distribution, key=baseline_distribution.get) if baseline_distribution else "?"
+    top_obs = (
+        max(observed_distribution, key=observed_distribution.get) if observed_distribution else "?"
+    )
+    top_base = (
+        max(baseline_distribution, key=baseline_distribution.get) if baseline_distribution else "?"
+    )
     indicators.append(
         DriftIndicator(
             name="Distribution des classes (TVD)",
@@ -197,7 +200,9 @@ def detect_drift(
     median_base = baseline.get("text_length_stats", {}).get("median", median_obs)
 
     ratio = max(median_obs, median_base) / max(min(median_obs, median_base), 1)
-    status_len = _status_from_value(ratio, cfg.text_length_ratio_warning, cfg.text_length_ratio_alert)
+    status_len = _status_from_value(
+        ratio, cfg.text_length_ratio_warning, cfg.text_length_ratio_alert
+    )
 
     indicators.append(
         DriftIndicator(
@@ -231,7 +236,9 @@ def detect_drift(
 
     # ── 4. Taux de predictions a faible confiance ────────────────────────────
     confidences = [rec.get("confidence", 1.0) for rec in logs]
-    low_conf_rate = sum(1 for c in confidences if c < cfg.low_confidence_threshold) / len(confidences)
+    low_conf_rate = sum(1 for c in confidences if c < cfg.low_confidence_threshold) / len(
+        confidences
+    )
     status_conf = _status_from_value(
         low_conf_rate, cfg.low_confidence_rate_warning, cfg.low_confidence_rate_alert
     )

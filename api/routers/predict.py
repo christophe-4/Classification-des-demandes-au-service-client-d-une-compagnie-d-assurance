@@ -132,7 +132,10 @@ def predict(
             num_unknown_tokens=num_unknown_tokens,
             predicted_class=response.prediction,
             confidence=response.confidence,
-            top_k=[{"class_name": item.class_name, "probability": item.probability} for item in top_items],
+            top_k=[
+                {"class_name": item.class_name, "probability": item.probability}
+                for item in top_items
+            ],
             inference_time_ms=response.inference_time_ms,
             model_name=bundle.model_name,
         )

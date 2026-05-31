@@ -21,7 +21,6 @@ import json
 import logging
 from datetime import datetime, timezone
 
-import numpy as np
 import pandas as pd
 
 from claims_classifier.config import config
@@ -72,7 +71,11 @@ def compute_baseline(train_df: pd.DataFrame, vocab: Vocabulary) -> dict:
         return n_unk / len(words)
 
     # Calcul sur un echantillon pour la rapidite (max 50 000 obs)
-    sample = train_df["text"] if len(train_df) <= 50_000 else train_df["text"].sample(50_000, random_state=42)
+    sample = (
+        train_df["text"]
+        if len(train_df) <= 50_000
+        else train_df["text"].sample(50_000, random_state=42)
+    )
     unk_rates = sample.map(unk_rate_for_text)
 
     unk_rate_stats = {
@@ -100,7 +103,9 @@ def compute_baseline(train_df: pd.DataFrame, vocab: Vocabulary) -> dict:
 
     logger.info(f"Baseline sauvegardee : {out_path}")
     logger.info(f"  Classes        : {len(class_distribution)}")
-    logger.info(f"  Longueur mots  : median={text_length_stats['median']:.0f}, p95={text_length_stats['p95']:.0f}")
+    logger.info(
+        f"  Longueur mots  : median={text_length_stats['median']:.0f}, p95={text_length_stats['p95']:.0f}"
+    )
     logger.info(f"  Taux <unk>     : mean={unk_rate_stats['mean']:.4f}")
 
     return baseline

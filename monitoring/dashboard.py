@@ -74,9 +74,7 @@ baseline = get_baseline()
 if not logs:
     st.info("📭 Aucune prédiction enregistrée. Lancez l'API et envoyez des requêtes.")
     if baseline is None:
-        st.warning(
-            "⚠️ Baseline introuvable. Lancez : `uv run python scripts/compute_baseline.py`"
-        )
+        st.warning("⚠️ Baseline introuvable. Lancez : `uv run python scripts/compute_baseline.py`")
     st.stop()
 
 # Calcul du rapport de derive
@@ -86,7 +84,11 @@ if baseline and len(logs) >= 50:
 
 # Bandeau de statut global
 if drift_report is None:
-    status_color, status_icon, status_text = "blue", "🔵", "Données insuffisantes (< 50 prédictions)"
+    status_color, status_icon, status_text = (
+        "blue",
+        "🔵",
+        "Données insuffisantes (< 50 prédictions)",
+    )
 elif drift_report.overall_status == DriftStatus.OK:
     status_color, status_icon, status_text = "green", "🟢", "Modèle sain"
 elif drift_report.overall_status == DriftStatus.WARNING:
@@ -94,8 +96,9 @@ elif drift_report.overall_status == DriftStatus.WARNING:
 else:
     status_color, status_icon, status_text = "red", "🔴", "ALERTE — dérive significative"
 
+_bg = {"green": "d4edda", "orange": "fff3cd", "red": "f8d7da", "blue": "d1ecf1"}[status_color]
 st.markdown(
-    f"<div style='background-color:#{{'green':'d4edda','orange':'fff3cd','red':'f8d7da','blue':'d1ecf1'}[status_color]};"
+    f"<div style='background-color:#{_bg};"
     f"padding:12px;border-radius:6px;font-size:1.1em;font-weight:bold;'>"
     f"{status_icon} Statut global : {status_text}"
     f"</div>",
@@ -147,7 +150,9 @@ if baseline:
     class_dist_obs = df["predicted_class"].value_counts(normalize=True).rename("Prédit (%)")
     class_dist_base = pd.Series(baseline["class_distribution"]).rename("Baseline (%)")
 
-    comparison_df = pd.DataFrame({"Prédit (%)": class_dist_obs, "Baseline (%)": class_dist_base}).fillna(0)
+    comparison_df = pd.DataFrame(
+        {"Prédit (%)": class_dist_obs, "Baseline (%)": class_dist_base}
+    ).fillna(0)
     comparison_df = comparison_df.sort_values("Baseline (%)", ascending=False)
 
     st.bar_chart(comparison_df)
@@ -200,10 +205,7 @@ st.divider()
 st.subheader("🚨 Détection de dérive")
 
 if drift_report is None:
-    st.info(
-        f"Rapport disponible dès {50} prédictions. "
-        f"Actuellement : {total_preds} prédiction(s)."
-    )
+    st.info(f"Rapport disponible dès {50} prédictions. Actuellement : {total_preds} prédiction(s).")
     if baseline is None:
         st.warning("Baseline introuvable. Lancez : `uv run python scripts/compute_baseline.py`")
 else:
@@ -236,13 +238,27 @@ st.divider()
 st.subheader("🗂️ 20 dernières prédictions")
 st.caption("⚠️ RGPD : aucun texte brut — uniquement des métadonnées dérivées")
 
-cols_display = ["timestamp", "predicted_class", "confidence", "text_length", "unk_rate", "inference_time_ms"]
+cols_display = [
+    "timestamp",
+    "predicted_class",
+    "confidence",
+    "text_length",
+    "unk_rate",
+    "inference_time_ms",
+]
 display_df = df[cols_display].tail(20).sort_index(ascending=False).copy()
 display_df["timestamp"] = display_df["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
 display_df["confidence"] = display_df["confidence"].map("{:.1%}".format)
 display_df["unk_rate"] = display_df["unk_rate"].map("{:.1%}".format)
 display_df["inference_time_ms"] = display_df["inference_time_ms"].map("{:.1f} ms".format)
-display_df.columns = ["Horodatage", "Classe prédite", "Confiance", "Longueur (mots)", "Taux <unk>", "Latence"]
+display_df.columns = [
+    "Horodatage",
+    "Classe prédite",
+    "Confiance",
+    "Longueur (mots)",
+    "Taux <unk>",
+    "Latence",
+]
 
 st.dataframe(display_df, use_container_width=True, hide_index=True)
 
@@ -250,7 +266,4 @@ st.dataframe(display_df, use_container_width=True, hide_index=True)
 # PIED DE PAGE
 # =============================================================================
 
-st.caption(
-    f"📁 Source : `{Path('logs/predictions.jsonl')}` · "
-    f"{total_preds:,} prédictions au total"
-)
+st.caption(f"📁 Source : `{Path('logs/predictions.jsonl')}` · {total_preds:,} prédictions au total")
