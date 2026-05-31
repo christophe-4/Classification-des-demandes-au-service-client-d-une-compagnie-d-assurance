@@ -7,6 +7,7 @@
 [![Weighted F1](https://img.shields.io/badge/Weighted_F1-83.12%25-brightgreen)](reports/figures/confusion_matrix_textcnn.png)
 [![Tests](https://img.shields.io/badge/tests-12_passed-brightgreen)](tests/)
 [![HF Space](https://img.shields.io/badge/🤗_HuggingFace-Space_Demo-yellow)](https://huggingface.co/spaces/FrenchEdtech/claims-classifier-demo)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
 > **Template PME** : modèle de Deep Learning NLP entraîné *from scratch* sur 300 000 réclamations
 > clients réelles (CFPB). Déployable pour automatiser le routage de réclamations en entreprise.
@@ -194,6 +195,31 @@ Prédictions (top 3) :
 
 ---
 
+## 🐳 Déploiement
+
+### API REST (FastAPI)
+
+```bash
+uv run uvicorn api.main:app --port 8000
+# Documentation interactive : http://localhost:8000/docs
+```
+
+Endpoints :
+- `GET /health` — état de l'API et du modèle
+- `POST /predict` — classification d'une réclamation
+
+### Docker
+
+```bash
+docker build -t claims-classifier-api .
+docker run -p 8000:8000 claims-classifier-api
+```
+
+Image multi-stage (~1.4 Go), utilisateur non-root, HEALTHCHECK intégré.
+Latence d'inférence : ~9 ms sur CPU.
+
+---
+
 ## 📈 Visualisations
 
 ### Matrice de confusion — TextCNN (jeu de test, 44 979 observations)
@@ -233,8 +259,8 @@ Prédictions (top 3) :
 
 **Phase 2 — Déploiement ⏳**
 - [x] Démo Hugging Face Space (Gradio)
-- [ ] API REST FastAPI (`POST /predict`)
-- [ ] Conteneurisation Docker
+- [x] API REST FastAPI (`POST /predict`)
+- [x] Conteneurisation Docker
 - [ ] Monitoring data drift (distribution des classes en production)
 - [ ] Amélioration classes minoritaires (augmentation de données, oversampling)
 
